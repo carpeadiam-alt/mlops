@@ -1,23 +1,16 @@
-name: Train and Deploy
-
-permissions:
-  contents: write
-
+name: CI/CD – Train and Deploy Demo
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  train-and-deploy:
+  pipeline:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  
-
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -27,23 +20,5 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Train models
+    - name: Run training pipeline (CI validation)
       run: python src/train.py
-
-    - name: Commit trained models
-      run: |
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
-        git add models/*.pkl
-        git commit -m "Auto-trained models" || echo "No changes to commit"
-
-    - name: Push to GitHub
-      run: git push
-
-    - name: Push to Hugging Face Space
-      env:
-        HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      run: |
-        git remote add space https://USER:$HF_TOKEN@huggingface.co/spaces/carpeadiam-alt/mlops
-        git push --force space main
- 
