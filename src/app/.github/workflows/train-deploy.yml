@@ -5,11 +5,12 @@ on:
     branches: [ main ]
 
 jobs:
-  train:
+  train-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -19,13 +20,22 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Train model
+    - name: Train models
       run: python src/train.py
 
-    - name: Commit model
+    - name: Commit trained models
       run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "actions@github.com"
-        git add model.pkl
-        git commit -m "Auto-trained model"
-        git push
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add models/*.pkl
+        git commit -m "Auto-trained models" || echo "No changes to commit"
+
+    - name: Push to GitHub
+      run: git push
+
+    - name: Push to Hugging Face Space
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        git remote add space https://USER:$HF_TOKEN@huggingface.co/spaces/carpeadiam-alt/mlops
+        git push space main
