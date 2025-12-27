@@ -1,5 +1,9 @@
 name: Train and Deploy
 
+permissions:
+  contents: write
+
+
 on:
   push:
     branches: [ main ]
