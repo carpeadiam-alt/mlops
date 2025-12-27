@@ -34,7 +34,9 @@ def train_stock(name, ticker):
         model.fit(X, y)
         preds = model.predict(X)
 
-        rmse = mean_squared_error(y, preds, squared=False)
+        import numpy as np
+        rmse = np.sqrt(mean_squared_error(y, preds))
+
 
         mlflow.log_param("stock", name)
         mlflow.log_param("ticker", ticker)
